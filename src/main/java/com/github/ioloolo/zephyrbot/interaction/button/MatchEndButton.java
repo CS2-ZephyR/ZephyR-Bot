@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -74,10 +75,11 @@ public class MatchEndButton implements InteractionInterface<ButtonInteractionEve
 
 		VoiceChannel defaultVoiceChannel = guild.getVoiceChannelById(defaultVoice);
 
+		Category category = guild.getCategoryById(teamRandomButton.getCategory());
 		VoiceChannel voice1 = guild.getVoiceChannelById(teamRandomButton.getVoice1());
 		VoiceChannel voice2 = guild.getVoiceChannelById(teamRandomButton.getVoice2());
 
-		if (defaultVoiceChannel == null || voice1 == null || voice2 == null) {
+		if (defaultVoiceChannel == null || category == null || voice1 == null || voice2 == null) {
 			return;
 		}
 
@@ -87,6 +89,7 @@ public class MatchEndButton implements InteractionInterface<ButtonInteractionEve
 
 		voice1.delete().queueAfter(1, TimeUnit.SECONDS);
 		voice2.delete().queueAfter(1, TimeUnit.SECONDS);
+		category.delete().queueAfter(1, TimeUnit.SECONDS);
 
 		event.getMessageChannel()
 				.deleteMessageById(event.getMessageIdLong())

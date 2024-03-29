@@ -46,6 +46,9 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 	private final MapVoteDropdown      mapVoteDropdown;
 
 	@Getter
+	private long category;
+
+	@Getter
 	private long voice1;
 	@Getter
 	private long voice2;
@@ -109,10 +112,9 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 		List<Long> member = new ArrayList<>(match.getTeam1().getMember());
 		Collections.shuffle(member);
 
-		List<Long> member1 = member.subList(0, generateMatchCommand.getMaxPlayer() / 2);
-		List<Long> member2 = member.subList(generateMatchCommand.getMaxPlayer() / 2,
-											generateMatchCommand.getMaxPlayer()
-		);
+		int halfPlayer = generateMatchCommand.getMaxPlayer() / 2;
+		List<Long> member1 = member.subList(0, halfPlayer);
+		List<Long> member2 = member.subList(halfPlayer, generateMatchCommand.getMaxPlayer());
 
 		User leader1 = userRepository.findBySteamId(member1.get(0)).orElseThrow();
 		User leader2 = userRepository.findBySteamId(member2.get(0)).orElseThrow();
@@ -136,28 +138,32 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 			return;
 		}
 
-		guild.createVoiceChannel("[내전] %s 팀".formatted(team1.get(0).getName())).queue(channel -> {
-			this.voice1 = channel.getIdLong();
+		guild.createCategory("내전").setPosition(999).queue(category -> {
+			this.category = category.getIdLong();
 
-			team1.stream()
-					.map(User::getDiscord)
-					.map(guild::getMemberById)
-					.filter(Objects::nonNull)
-					.filter(x -> x.getVoiceState() != null)
-					.filter(x -> x.getVoiceState().inAudioChannel())
-					.forEach(member -> guild.moveVoiceMember(member, channel).queue());
-		});
+			guild.createVoiceChannel("[내전] %s 팀".formatted(team1.get(0).getName()), category).queue(channel -> {
+				this.voice1 = channel.getIdLong();
 
-		guild.createVoiceChannel("[내전] %s 팀".formatted(team2.get(0).getName())).queue(channel -> {
-			this.voice2 = channel.getIdLong();
+				team1.stream()
+						.map(User::getDiscord)
+						.map(guild::getMemberById)
+						.filter(Objects::nonNull)
+						.filter(x -> x.getVoiceState() != null)
+						.filter(x -> x.getVoiceState().inAudioChannel())
+						.forEach(member -> guild.moveVoiceMember(member, channel).queue());
+			});
 
-			team2.stream()
-					.map(User::getDiscord)
-					.map(guild::getMemberById)
-					.filter(Objects::nonNull)
-					.filter(x -> x.getVoiceState() != null)
-					.filter(x -> x.getVoiceState().inAudioChannel())
-					.forEach(member -> guild.moveVoiceMember(member, channel).queue());
+			guild.createVoiceChannel("[내전] %s 팀".formatted(team2.get(0).getName()), category).queue(channel -> {
+				this.voice2 = channel.getIdLong();
+
+				team2.stream()
+						.map(User::getDiscord)
+						.map(guild::getMemberById)
+						.filter(Objects::nonNull)
+						.filter(x -> x.getVoiceState() != null)
+						.filter(x -> x.getVoiceState().inAudioChannel())
+						.forEach(member -> guild.moveVoiceMember(member, channel).queue());
+			});
 		});
 	}
 }
