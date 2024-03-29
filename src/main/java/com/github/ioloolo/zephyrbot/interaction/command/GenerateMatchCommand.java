@@ -3,6 +3,7 @@ package com.github.ioloolo.zephyrbot.interaction.command;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Component;
 
@@ -65,8 +66,29 @@ public class GenerateMatchCommand implements InteractionInterface<SlashCommandIn
 
 		maxPlayer = Objects.requireNonNull(event.getOption("인원")).getAsInt();
 
+		if (!verifyMaxPlayer(event, maxPlayer)) {
+			return;
+		}
+
 		generateNewMatch();
 		sendSuccessMessage(event);
+	}
+
+	private boolean verifyMaxPlayer(SlashCommandInteractionEvent callback, int maxPlayer) {
+
+		if (maxPlayer % 2 == 1) {
+			MessageEmbed messageEmbed = new EmbedBuilder().setTitle("오류가 발생했습니다.")
+					.setDescription("경기 인원은 짝수로 설정해주세요.")
+					.setFooter("Team ZephyR")
+					.setColor(Color.RED)
+					.build();
+
+			callback.replyEmbeds(messageEmbed).queue(hook -> hook.deleteOriginal().queueAfter(5, TimeUnit.SECONDS));
+
+			return false;
+		}
+
+		return true;
 	}
 
 	private void generateNewMatch() {
