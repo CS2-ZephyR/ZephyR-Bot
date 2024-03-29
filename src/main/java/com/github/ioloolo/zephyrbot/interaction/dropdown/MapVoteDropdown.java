@@ -63,7 +63,6 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 
 		Match match = matchRepository.findByEndIsFalse().orElseThrow();
 		Match.Team team = isTeam1 ? match.getTeam1() : match.getTeam2();
-		isTeam1 = !isTeam1;
 		User leader = userRepository.findBySteamId(team.getMember().get(0)).orElseThrow();
 
 		if (!checkLeader(event, leader)) {
@@ -84,6 +83,7 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 		remainedMap = remainedMap.stream().filter(x -> !x.equals(map)).toList();
 		blockedMap.add(map);
 
+		isTeam1 = !isTeam1;
 		log.info("[Map Vote] {} - {}", leader.getName(), map);
 
 		if (remainedMap.size() > 1) {

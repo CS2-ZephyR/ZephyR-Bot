@@ -1,6 +1,7 @@
 package com.github.ioloolo.zephyrbot.interaction.command;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,7 +45,8 @@ public class TeamSetCommand implements InteractionInterface<SlashCommandInteract
 
 	private final CommonMethod commonMethod;
 
-	private final MapVoteDropdown mapVoteDropdown;
+	private final GenerateMatchCommand generateMatchCommand;
+	private final MapVoteDropdown      mapVoteDropdown;
 
 	@PostConstruct
 	public void init() {
@@ -52,10 +54,10 @@ public class TeamSetCommand implements InteractionInterface<SlashCommandInteract
 		SlashCommandData command = Commands.slash("팀지정", "경기의 팀원을 지정합니다.")
 				.addOption(OptionType.INTEGER, "팀", "팀원을 지정할 팀을 지정합니다.", true)
 				.addOption(OptionType.USER, "팀원1", "팀원 1을 지정합니다.", true)
-				.addOption(OptionType.USER, "팀원2", "팀원 2을 지정합니다.", true)
-				.addOption(OptionType.USER, "팀원3", "팀원 3을 지정합니다.", true)
-				.addOption(OptionType.USER, "팀원4", "팀원 4을 지정합니다.", true)
-				.addOption(OptionType.USER, "팀원5", "팀원 5을 지정합니다.", true);
+				.addOption(OptionType.USER, "팀원2", "팀원 2을 지정합니다.", false)
+				.addOption(OptionType.USER, "팀원3", "팀원 3을 지정합니다.", false)
+				.addOption(OptionType.USER, "팀원4", "팀원 4을 지정합니다.", false)
+				.addOption(OptionType.USER, "팀원5", "팀원 5을 지정합니다.", false);
 
 		zephyrBot.getJda()
 				.upsertCommand(command)
@@ -73,13 +75,23 @@ public class TeamSetCommand implements InteractionInterface<SlashCommandInteract
 
 		int teamNum = Objects.requireNonNull(event.getOption("팀")).getAsInt();
 
-		List<User> members = List.of(
-				Objects.requireNonNull(event.getOption("팀원1")).getAsUser(),
-				Objects.requireNonNull(event.getOption("팀원2")).getAsUser(),
-				Objects.requireNonNull(event.getOption("팀원3")).getAsUser(),
-				Objects.requireNonNull(event.getOption("팀원4")).getAsUser(),
-				Objects.requireNonNull(event.getOption("팀원5")).getAsUser()
-		);
+		List<User> members = new ArrayList<>();
+
+		if (event.getOption("팀원1") != null) {
+			members.add(Objects.requireNonNull(event.getOption("팀원1")).getAsUser());
+		}
+		if (event.getOption("팀원2") != null) {
+			members.add(Objects.requireNonNull(event.getOption("팀원2")).getAsUser());
+		}
+		if (event.getOption("팀원3") != null) {
+			members.add(Objects.requireNonNull(event.getOption("팀원3")).getAsUser());
+		}
+		if (event.getOption("팀원4") != null) {
+			members.add(Objects.requireNonNull(event.getOption("팀원4")).getAsUser());
+		}
+		if (event.getOption("팀원5") != null) {
+			members.add(Objects.requireNonNull(event.getOption("팀원5")).getAsUser());
+		}
 
 		Match match = matchRepository.findByEndIsFalse().orElseThrow();
 
@@ -113,7 +125,7 @@ public class TeamSetCommand implements InteractionInterface<SlashCommandInteract
 		List<com.github.ioloolo.zephyrbot.data.User> team1 = commonMethod.getMatchTeam1User(match);
 		List<com.github.ioloolo.zephyrbot.data.User> team2 = commonMethod.getMatchTeam2User(match);
 
-		boolean end = team1.size() >= 5 && team2.size() >= 5;
+		boolean end = team1.size() >= generateMatchCommand.getMaxPlayer() / 2 && team2.size() >= generateMatchCommand.getMaxPlayer() / 2;
 
 		MessageEmbed messageEmbed = new EmbedBuilder().setTitle("팀원 구성")
 				.setDescription("팀원이 구성되었습니다." + (end ? "\n\n10초 후 맵 선택이 진행됩니다." : ""))

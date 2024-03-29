@@ -20,6 +20,7 @@ import com.github.ioloolo.zephyrbot.data.Match;
 import com.github.ioloolo.zephyrbot.data.User;
 import com.github.ioloolo.zephyrbot.interaction.CommonMethod;
 import com.github.ioloolo.zephyrbot.interaction.InteractionInterface;
+import com.github.ioloolo.zephyrbot.interaction.command.GenerateMatchCommand;
 import com.github.ioloolo.zephyrbot.interaction.dropdown.MapVoteDropdown;
 import com.github.ioloolo.zephyrbot.repository.MatchRepository;
 import com.github.ioloolo.zephyrbot.repository.UserRepository;
@@ -36,12 +37,13 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 
 	private final ButtonBridge buttonBridge;
 
-	private final UserRepository  userRepository;
+	private final UserRepository userRepository;
 	private final MatchRepository matchRepository;
 
 	private final CommonMethod commonMethod;
 
-	private final MapVoteDropdown mapVoteDropdown;
+	private final GenerateMatchCommand generateMatchCommand;
+	private final MapVoteDropdown      mapVoteDropdown;
 
 	@Getter
 	private long voice1;
@@ -75,15 +77,17 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 		event.getMessageChannel().deleteMessageById(event.getMessageIdLong()).queue(v -> {
 			MessageEmbed messageEmbed = new EmbedBuilder().setTitle("팀원 구성")
 					.setDescription("팀원이 구성되었습니다.\n\n10초 후 맵 선택이 진행됩니다.")
-					.addField(new MessageEmbed.Field(
-							match.getTeam1().getName(),
-							team1.stream().map(User::getName).collect(Collectors.joining("\n")),
-							true
+					.addField(new MessageEmbed.Field(match.getTeam1().getName(),
+													 team1.stream()
+															 .map(User::getName)
+															 .collect(Collectors.joining("\n")),
+													 true
 					))
-					.addField(new MessageEmbed.Field(
-							match.getTeam2().getName(),
-							team2.stream().map(User::getName).collect(Collectors.joining("\n")),
-							true
+					.addField(new MessageEmbed.Field(match.getTeam2().getName(),
+													 team2.stream()
+															 .map(User::getName)
+															 .collect(Collectors.joining("\n")),
+													 true
 					))
 					.setFooter("Team ZephyR")
 					.setColor(Color.GREEN)
@@ -105,8 +109,16 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 		List<Long> member = new ArrayList<>(match.getTeam1().getMember());
 		Collections.shuffle(member);
 
-		List<Long> member1 = member.subList(0, 5);
-		List<Long> member2 = member.subList(5, 10);
+		System.out.println(member);
+		System.out.println(generateMatchCommand.getMaxPlayer() / 2);
+
+		List<Long> member1 = member.subList(0, generateMatchCommand.getMaxPlayer() / 2);
+		List<Long> member2 = member.subList(generateMatchCommand.getMaxPlayer() / 2,
+											generateMatchCommand.getMaxPlayer()
+		);
+
+		System.out.println(member1);
+		System.out.println(member2);
 
 		User leader1 = userRepository.findBySteamId(member1.get(0)).orElseThrow();
 		User leader2 = userRepository.findBySteamId(member2.get(0)).orElseThrow();

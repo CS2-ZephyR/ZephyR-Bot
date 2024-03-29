@@ -15,6 +15,7 @@ import com.github.ioloolo.zephyrbot.data.Match;
 import com.github.ioloolo.zephyrbot.data.User;
 import com.github.ioloolo.zephyrbot.interaction.CommonMethod;
 import com.github.ioloolo.zephyrbot.interaction.InteractionInterface;
+import com.github.ioloolo.zephyrbot.interaction.command.GenerateMatchCommand;
 import com.github.ioloolo.zephyrbot.repository.MatchRepository;
 import com.github.ioloolo.zephyrbot.repository.UserRepository;
 
@@ -29,10 +30,12 @@ public class JoinMatchButton implements InteractionInterface<ButtonInteractionEv
 
 	private final ButtonBridge buttonBridge;
 
-	private final UserRepository  userRepository;
+	private final UserRepository userRepository;
 	private final MatchRepository matchRepository;
 
 	private final CommonMethod commonMethod;
+
+	private final GenerateMatchCommand generateMatchCommand;
 
 	@PostConstruct
 	public void init() {
@@ -77,12 +80,18 @@ public class JoinMatchButton implements InteractionInterface<ButtonInteractionEv
 		int numOfParticipants = participants.split("\n").length;
 
 		MessageEmbed messageEmbed = new EmbedBuilder(originalMessageEmbed).clearFields()
-				.addField(new MessageEmbed.Field("인원", "%d/10 명".formatted(numOfParticipants), false))
+				.addField(new MessageEmbed.Field("인원",
+												 "%d/%d 명".formatted(
+														 numOfParticipants,
+														 generateMatchCommand.getMaxPlayer()
+												 ),
+												 false
+				))
 				.addField(new MessageEmbed.Field("참가자", participants, false))
 				.build();
 
 		event.editMessageEmbeds(messageEmbed).queue(hook -> {
-			if (numOfParticipants < 10) {
+			if (numOfParticipants < generateMatchCommand.getMaxPlayer()) {
 				return;
 			}
 

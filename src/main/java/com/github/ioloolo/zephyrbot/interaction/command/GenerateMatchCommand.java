@@ -2,12 +2,14 @@ package com.github.ioloolo.zephyrbot.interaction.command;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -21,6 +23,7 @@ import com.github.ioloolo.zephyrbot.interaction.button.JoinMatchButton;
 import com.github.ioloolo.zephyrbot.repository.MatchRepository;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,10 +40,14 @@ public class GenerateMatchCommand implements InteractionInterface<SlashCommandIn
 
 	private final CommonMethod commonMethod;
 
+	@Getter
+	private int maxPlayer;
+
 	@PostConstruct
 	public void init() {
 
-		SlashCommandData command = Commands.slash("생성", "커스텀 경기를 생성합니다.");
+		SlashCommandData command = Commands.slash("생성", "커스텀 경기를 생성합니다.")
+				.addOption(OptionType.INTEGER, "인원", "최대 게임 인원", true);
 
 		zephyrBot.getJda()
 				.upsertCommand(command)
@@ -55,6 +62,8 @@ public class GenerateMatchCommand implements InteractionInterface<SlashCommandIn
 		if (!commonMethod.checkPermission(event) || !commonMethod.checkRunningMatch(event)) {
 			return;
 		}
+
+		maxPlayer = Objects.requireNonNull(event.getOption("인원")).getAsInt();
 
 		generateNewMatch();
 		sendSuccessMessage(event);
@@ -77,7 +86,7 @@ public class GenerateMatchCommand implements InteractionInterface<SlashCommandIn
 
 		MessageEmbed messageEmbed = new EmbedBuilder().setTitle("경기가 생성되었습니다.")
 				.setDescription("경기에 참여할 분들은 아래 ***[참여]*** 버튼을 눌러주세요.")
-				.addField(new MessageEmbed.Field("인원", "0/10 명", true))
+				.addField(new MessageEmbed.Field("인원", "0/%d 명".formatted(maxPlayer), true))
 				.addField(new MessageEmbed.Field("참가자", "", false))
 				.setFooter("Team ZephyR")
 				.setColor(Color.CYAN)
