@@ -83,10 +83,14 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 		remainedMap = remainedMap.stream().filter(x -> !x.equals(map)).toList();
 		blockedMap.add(map);
 
-		isTeam1 = !isTeam1;
 		log.info("[Map Vote] {} - {}", leader.getName(), map);
 
 		if (remainedMap.size() > 1) {
+			isTeam1 = !isTeam1;
+
+			team = isTeam1 ? match.getTeam1() : match.getTeam2();
+			leader = userRepository.findBySteamId(team.getMember().get(0)).orElseThrow();
+			
 			MessageEmbed messageEmbed = new EmbedBuilder(originalEmbed).clearFields()
 					.setDescription("**%s**의 팀장인 **%s님**은 차단할 맵을 선택해주세요.".formatted(team.getName(), leader.getName()))
 					.addField(new MessageEmbed.Field("남은 맵", String.join("\n", remainedMap), true))
@@ -113,7 +117,7 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 
 		Match match = matchRepository.findByEndIsFalse().orElseThrow();
 		Match.Team team = isTeam1 ? match.getTeam1() : match.getTeam2();
-		isTeam1 = !isTeam1;
+		isTeam1 = true;
 		User leader = userRepository.findBySteamId(team.getMember().get(0)).orElseThrow();
 
 		MessageEmbed messageEmbed = new EmbedBuilder().setTitle("맵 선택")
