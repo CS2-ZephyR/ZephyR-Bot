@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "discord.token",
+      "type": "java.lang.String",
+      "description": "Description for discord.token."
+    },
+    {
+      "name": "discord.owner",
+      "type": "java.lang.Long",
+      "description": "Description for discord.owner."
+    },
+    {
+      "name": "discord.voice",
+      "type": "java.lang.Long",
+      "description": "Description for discord.voice."
+    }
+  ]
+}
