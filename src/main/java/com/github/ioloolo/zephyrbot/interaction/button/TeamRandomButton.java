@@ -109,16 +109,10 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 		List<Long> member = new ArrayList<>(match.getTeam1().getMember());
 		Collections.shuffle(member);
 
-		System.out.println(member);
-		System.out.println(generateMatchCommand.getMaxPlayer() / 2);
-
 		List<Long> member1 = member.subList(0, generateMatchCommand.getMaxPlayer() / 2);
 		List<Long> member2 = member.subList(generateMatchCommand.getMaxPlayer() / 2,
 											generateMatchCommand.getMaxPlayer()
 		);
-
-		System.out.println(member1);
-		System.out.println(member2);
 
 		User leader1 = userRepository.findBySteamId(member1.get(0)).orElseThrow();
 		User leader2 = userRepository.findBySteamId(member2.get(0)).orElseThrow();
