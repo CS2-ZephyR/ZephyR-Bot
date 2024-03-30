@@ -127,8 +127,26 @@ public class TeamSetCommand implements InteractionInterface<SlashCommandInteract
 
 		boolean end = team1.size() >= generateMatchCommand.getMaxPlayer() / 2 && team2.size() >= generateMatchCommand.getMaxPlayer() / 2;
 
+		if (end) {
+			log.info(
+					"[Team Set] Team1({}): {}",
+					match.getTeam1().getName(),
+					team1.stream()
+							.map(com.github.ioloolo.zephyrbot.data.User::getName)
+							.collect(Collectors.joining(", "))
+			);
+
+			log.info(
+					"[Team Set] Team2({}): {}",
+					match.getTeam2().getName(),
+					team2.stream()
+							.map(com.github.ioloolo.zephyrbot.data.User::getName)
+							.collect(Collectors.joining(", "))
+			);
+		}
+
 		MessageEmbed messageEmbed = new EmbedBuilder().setTitle("팀원 구성")
-				.setDescription("팀원이 구성되었습니다." + (end ? "\n\n10초 후 맵 선택이 진행됩니다." : ""))
+				.setDescription("팀원이 구성되었습니다." + (end ? "\n\n5초 후 맵 선택이 진행됩니다." : ""))
 				.addField(new MessageEmbed.Field(
 						match.getTeam1().getName(),
 						team1.stream()
@@ -152,8 +170,8 @@ public class TeamSetCommand implements InteractionInterface<SlashCommandInteract
 				return;
 			}
 
-			message.delete().queueAfter(10, TimeUnit.SECONDS, v2 -> {
-				mapVoteDropdown.setTeam1(true);
+			message.delete().queueAfter(5, TimeUnit.SECONDS, v2 -> {
+				mapVoteDropdown.initVar();
 				mapVoteDropdown.sendMapVoteMessage(event.getMessageChannel());
 			});
 		});
