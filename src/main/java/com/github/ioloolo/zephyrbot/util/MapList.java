@@ -49,12 +49,18 @@ public class MapList {
 	), Map.of("무기창고",
 			  "workshop:3070596702",
 			  "https://static.wikia.nocookie.net/cswikia/images/2/23/Set_cache.png/revision/latest"
-	), Map.of("자갈돌",
-			  "workshop:3070293560",
-			  "https://static.wikia.nocookie.net/cswikia/images/2/21/Set_cobblestone.png/revision/latest"
 	), Map.of("기차",
 			  "workshop:3070284539",
 			  "https://static.wikia.nocookie.net/cswikia/images/6/60/Set_train.png/revision/latest"
+	), Map.of("아웃페르노",
+			  "workshop:3196360672",
+			  null
+	), Map.of("Aurelia",
+			  "workshop:3107067103",
+			  null
+	), Map.of("Amalia",
+			  "workshop:3120867158",
+			  null
 	));
 
 	public Map fromRaw(String raw) {
