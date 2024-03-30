@@ -68,11 +68,6 @@ public class MapList {
 		return mapList.stream().filter(x -> x.getRaw().equals(raw)).findAny().orElseThrow(null);
 	}
 
-	public Map fromName(String name) {
-
-		return mapList.stream().filter(x -> x.getName().equals(name)).findAny().orElseThrow(null);
-	}
-
 	public String rawToName(String raw) {
 
 		return mapList.stream()

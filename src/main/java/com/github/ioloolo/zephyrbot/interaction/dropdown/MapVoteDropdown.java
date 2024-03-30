@@ -118,22 +118,18 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 						.setColor(Color.MAGENTA)
 						.build();
 
-				event.getMessageChannel().deleteMessageById(lastPingMessage).queue(v -> {
-					event.getChannel()
-							.sendMessageEmbeds(messageEmbed)
-							.queue(message -> lastPingMessage = message.getIdLong());
-				});
+				event.getMessageChannel().deleteMessageById(lastPingMessage).queue(v -> event.getChannel()
+						.sendMessageEmbeds(messageEmbed)
+						.queue(message -> lastPingMessage = message.getIdLong()));
 			}
 		} else {
 
 			match.setMap(mapList.nameToRaw(remainedMap.get(0)));
 			matchRepository.save(match);
 
-			event.getMessageChannel().deleteMessageById(lastPingMessage).queue(v -> {
-				event.getMessageChannel()
-						.deleteMessageById(event.getMessageIdLong())
-						.queue(v2 -> matchStartButton.sendMatchStartMessage(event.getMessageChannel()));
-			});
+			event.getMessageChannel().deleteMessageById(lastPingMessage).queue(v -> event.getMessageChannel()
+					.deleteMessageById(event.getMessageIdLong())
+					.queue(v2 -> matchStartButton.sendMatchStartMessage(event.getMessageChannel())));
 		}
 	}
 
