@@ -20,6 +20,7 @@ import com.github.ioloolo.zephyrbot.data.Match;
 import com.github.ioloolo.zephyrbot.interaction.CommonMethod;
 import com.github.ioloolo.zephyrbot.interaction.InteractionInterface;
 import com.github.ioloolo.zephyrbot.repository.MatchRepository;
+import com.github.ioloolo.zephyrbot.socket.WebSocketHandler;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class MatchEndButton implements InteractionInterface<ButtonInteractionEve
 
 	private final MatchRepository matchRepository;
 
-	private final TeamRandomButton teamRandomButton;
+	private final WebSocketHandler webSocketHandler;
 
 	private final CommonMethod commonMethod;
 
@@ -73,9 +74,9 @@ public class MatchEndButton implements InteractionInterface<ButtonInteractionEve
 
 		VoiceChannel defaultVoiceChannel = guild.getVoiceChannelById(defaultVoice);
 
-		Category category = guild.getCategoryById(teamRandomButton.getCategory());
-		VoiceChannel voice1 = guild.getVoiceChannelById(teamRandomButton.getVoice1());
-		VoiceChannel voice2 = guild.getVoiceChannelById(teamRandomButton.getVoice2());
+		Category category = guild.getCategoryById(webSocketHandler.getCategory());
+		VoiceChannel voice1 = guild.getVoiceChannelById(webSocketHandler.getVoice1());
+		VoiceChannel voice2 = guild.getVoiceChannelById(webSocketHandler.getVoice2());
 
 		if (defaultVoiceChannel == null || category == null || voice1 == null || voice2 == null) {
 			return;

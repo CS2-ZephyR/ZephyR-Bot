@@ -13,3 +13,6 @@ discord:
   owner: (bot owner discord id)
   default-voice-channel: (channel id)
   advertise-channel: (channel id)
+
+server:
+  path: (server path)
