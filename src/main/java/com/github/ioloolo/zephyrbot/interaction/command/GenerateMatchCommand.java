@@ -76,9 +76,19 @@ public class GenerateMatchCommand implements InteractionInterface<SlashCommandIn
 
 	private boolean verifyMaxPlayer(SlashCommandInteractionEvent callback, int maxPlayer) {
 
-		if (maxPlayer % 2 == 1) {
+		if (maxPlayer < 2) {
 			MessageEmbed messageEmbed = new EmbedBuilder().setTitle("오류가 발생했습니다.")
-					.setDescription("경기 인원은 짝수로 설정해주세요.")
+					.setDescription("최소 경기 인원은 2명입니다.")
+					.setFooter("Team ZephyR")
+					.setColor(Color.RED)
+					.build();
+
+			callback.replyEmbeds(messageEmbed).queue(hook -> hook.deleteOriginal().queueAfter(5, TimeUnit.SECONDS));
+
+			return false;
+		} else if (maxPlayer > 20) {
+			MessageEmbed messageEmbed = new EmbedBuilder().setTitle("오류가 발생했습니다.")
+					.setDescription("최대 경기 인원은 20명입니다.")
 					.setFooter("Team ZephyR")
 					.setColor(Color.RED)
 					.build();
