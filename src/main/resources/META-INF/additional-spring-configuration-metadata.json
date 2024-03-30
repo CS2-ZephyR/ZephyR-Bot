@@ -11,9 +11,14 @@
       "description": "Description for discord.owner."
     },
     {
-      "name": "discord.voice",
+      "name": "discord.default-voice-channel",
       "type": "java.lang.Long",
-      "description": "Description for discord.voice."
+      "description": "Description for discord.default-voice-channel."
+    },
+    {
+      "name": "discord.advertise-channel",
+      "type": "java.lang.Long",
+      "description": "Description for discord.advertise-channel."
     }
   ]
 }

@@ -10,5 +10,6 @@ spring:
 
 discord:
   token: (token)
-  owner: (bot owner)
-  voice: (default voice)
+  owner: (bot owner discord id)
+  default-voice-channel: (channel id)
+  advertise-channel: (channel id)
