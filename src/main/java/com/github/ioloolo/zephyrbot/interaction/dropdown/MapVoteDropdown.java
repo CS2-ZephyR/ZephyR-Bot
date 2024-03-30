@@ -1,12 +1,16 @@
 package com.github.ioloolo.zephyrbot.interaction.dropdown;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,10 +22,11 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import com.github.ioloolo.zephyrbot.data.Match;
 import com.github.ioloolo.zephyrbot.data.User;
+import com.github.ioloolo.zephyrbot.interaction.CommonMethod;
 import com.github.ioloolo.zephyrbot.interaction.InteractionInterface;
-import com.github.ioloolo.zephyrbot.interaction.button.MatchStartButton;
 import com.github.ioloolo.zephyrbot.repository.MatchRepository;
 import com.github.ioloolo.zephyrbot.repository.UserRepository;
+import com.github.ioloolo.zephyrbot.socket.WebSocketHandler;
 import com.github.ioloolo.zephyrbot.util.MapList;
 
 import jakarta.annotation.PostConstruct;
@@ -38,15 +43,18 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 	private final UserRepository  userRepository;
 	private final MatchRepository matchRepository;
 
-	private final MatchStartButton matchStartButton;
+	private final CommonMethod commonMethod;
 
 	private final MapList mapList;
 
-	private boolean isTeam1;
+	private final WebSocketHandler webSocketHandler;
 
 	private Stack<String> blockedMap;
-
+	private boolean isTeam1;
 	private long lastPingMessage;
+
+	@Value("${csgo.path}")
+	private String serverPath;
 
 	@PostConstruct
 	public void init() {
@@ -129,7 +137,7 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 
 			event.getMessageChannel().deleteMessageById(lastPingMessage).queue(v -> event.getMessageChannel()
 					.deleteMessageById(event.getMessageIdLong())
-					.queue(v2 -> matchStartButton.sendMatchStartMessage(event.getMessageChannel())));
+					.queue(v2 -> sendMatchStartMessage(event)));
 		}
 	}
 
@@ -225,5 +233,43 @@ public class MapVoteDropdown implements InteractionInterface<StringSelectInterac
 		}
 
 		return true;
+	}
+
+	private void sendMatchStartMessage(StringSelectInteractionEvent event) {
+
+		Match match = matchRepository.findByEndIsFalse().orElseThrow();
+
+		List<User> team1 = commonMethod.getMatchTeam1User(match);
+		List<User> team2 = commonMethod.getMatchTeam2User(match);
+
+		MessageEmbed messageEmbed = new EmbedBuilder().setTitle("경기 준비중")
+				.setDescription("서버가 준비중입니다.\n\n잠시만 기다려주세요.")
+				.addField(new MessageEmbed.Field("맵", mapList.rawToName(match.getMap()), true))
+				.addField(new MessageEmbed.Field(
+						match.getTeam1().getName(),
+						team1.stream().map(User::getName).collect(Collectors.joining("\n")),
+						true
+				))
+				.addField(new MessageEmbed.Field(
+						match.getTeam2().getName(),
+						team2.stream().map(User::getName).collect(Collectors.joining("\n")),
+						true
+				))
+				.setThumbnail(mapList.fromRaw(match.getMap()).getLogo())
+				.setFooter("Team ZephyR")
+				.setColor(Color.YELLOW)
+				.build();
+
+		event.getChannel().sendMessageEmbeds(messageEmbed).queue(message -> {
+			webSocketHandler.setMessage(message);
+
+			String startCommand = ".\\game\\bin\\win64\\cs2.exe -dedicated -maxplayers 20 +game_mode 1 +game_type 0 +map lobby_mapveto";
+
+			try {
+				new ProcessBuilder("cmd.exe", "/C", startCommand).directory(new File(serverPath)).start();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 }

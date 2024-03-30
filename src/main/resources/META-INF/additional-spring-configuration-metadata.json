@@ -19,6 +19,11 @@
       "name": "discord.advertise-channel",
       "type": "java.lang.Long",
       "description": "Description for discord.advertise-channel."
+    },
+    {
+      "name": "csgo.path",
+      "type": "java.lang.String",
+      "description": "Description for csgo.path."
     }
   ]
 }

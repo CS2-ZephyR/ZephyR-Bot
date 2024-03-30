@@ -24,9 +24,9 @@ import com.github.ioloolo.zephyrbot.interaction.command.GenerateMatchCommand;
 import com.github.ioloolo.zephyrbot.interaction.dropdown.MapVoteDropdown;
 import com.github.ioloolo.zephyrbot.repository.MatchRepository;
 import com.github.ioloolo.zephyrbot.repository.UserRepository;
+import com.github.ioloolo.zephyrbot.socket.WebSocketHandler;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,13 +45,7 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 	private final GenerateMatchCommand generateMatchCommand;
 	private final MapVoteDropdown      mapVoteDropdown;
 
-	@Getter
-	private long category;
-
-	@Getter
-	private long voice1;
-	@Getter
-	private long voice2;
+	private final WebSocketHandler webSocketHandler;
 
 	@PostConstruct
 	public void init() {
@@ -144,10 +138,10 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 		assert guild != null;
 
 		guild.createCategory("내전").setPosition(999).queue(category -> {
-			this.category = category.getIdLong();
+			webSocketHandler.setCategory(category.getIdLong());
 
 			guild.createVoiceChannel("[내전] %s 팀".formatted(team1.get(0).getName()), category).queue(channel -> {
-				this.voice1 = channel.getIdLong();
+				webSocketHandler.setVoice1(channel.getIdLong());
 
 				team1.stream()
 						.map(User::getDiscord)
@@ -159,7 +153,7 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 			});
 
 			guild.createVoiceChannel("[내전] %s 팀".formatted(team2.get(0).getName()), category).queue(channel -> {
-				this.voice2 = channel.getIdLong();
+				webSocketHandler.setVoice2(channel.getIdLong());
 
 				team2.stream()
 						.map(User::getDiscord)
