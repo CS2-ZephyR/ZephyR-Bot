@@ -69,9 +69,7 @@ public class MatchEndButton implements InteractionInterface<ButtonInteractionEve
 		log.info("[Match End] 경기 종료.");
 
 		Guild guild = event.getGuild();
-		if (guild == null) {
-			return;
-		}
+		assert guild != null;
 
 		VoiceChannel defaultVoiceChannel = guild.getVoiceChannelById(defaultVoice);
 

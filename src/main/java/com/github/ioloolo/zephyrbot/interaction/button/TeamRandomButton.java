@@ -70,16 +70,24 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 
 		Match match = shuffleTeam();
 
-		log.info("[Team Set] 랜덤으로 팀을 섞었습니다.");
-
 		List<User> team1 = commonMethod.getMatchTeam1User(match);
 		List<User> team2 = commonMethod.getMatchTeam2User(match);
+
+		log.info("[Team Set] 랜덤으로 팀을 섞었습니다.");
+
+		log.info("[Team Set] Team1({}): {}",
+				 match.getTeam1().getName(),
+				 team1.stream().map(User::getName).collect(Collectors.joining(", ")));
+
+		log.info("[Team Set] Team2({}): {}",
+				 match.getTeam2().getName(),
+				 team2.stream().map(User::getName).collect(Collectors.joining(", ")));
 
 		MoveMemberTeamChannel(event, team1, team2);
 
 		event.getMessageChannel().deleteMessageById(event.getMessageIdLong()).queue(v -> {
 			MessageEmbed messageEmbed = new EmbedBuilder().setTitle("팀원 구성")
-					.setDescription("팀원이 구성되었습니다.\n\n10초 후 맵 선택이 진행됩니다.")
+					.setDescription("팀원이 구성되었습니다.\n\n5초 후 맵 선택이 진행됩니다.")
 					.addField(new MessageEmbed.Field(match.getTeam1().getName(),
 													 team1.stream()
 															 .map(User::getName)
@@ -98,8 +106,8 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 
 			event.getMessageChannel()
 					.sendMessageEmbeds(messageEmbed)
-					.queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS, v2 -> {
-						mapVoteDropdown.setTeam1(true);
+					.queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS, v2 -> {
+						mapVoteDropdown.initVar();
 						mapVoteDropdown.sendMapVoteMessage(message.getChannel());
 					}));
 		});
@@ -133,10 +141,7 @@ public class TeamRandomButton implements InteractionInterface<ButtonInteractionE
 	private void MoveMemberTeamChannel(ButtonInteractionEvent event, List<User> team1, List<User> team2) {
 
 		Guild guild = event.getGuild();
-
-		if (guild == null) {
-			return;
-		}
+		assert guild != null;
 
 		guild.createCategory("내전").setPosition(999).queue(category -> {
 			this.category = category.getIdLong();
