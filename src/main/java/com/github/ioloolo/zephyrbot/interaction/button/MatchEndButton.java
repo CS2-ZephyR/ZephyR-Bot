@@ -39,7 +39,7 @@ public class MatchEndButton implements InteractionInterface<ButtonInteractionEve
 
 	private final CommonMethod commonMethod;
 
-	@Value("${discord.default-voice-channel}")
+	@Value("${discord.channel.voice.default}")
 	private long defaultVoice;
 
 	@PostConstruct

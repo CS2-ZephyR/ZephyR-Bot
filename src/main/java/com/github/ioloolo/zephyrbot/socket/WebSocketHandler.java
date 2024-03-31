@@ -50,7 +50,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	@Getter
 	private long voice2;
 
-	@Value("${discord.default-voice-channel}")
+	@Value("${discord.channel.voice.default}")
 	private long defaultVoice;
 
 	@Override

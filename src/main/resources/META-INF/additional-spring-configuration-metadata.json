@@ -11,19 +11,24 @@
       "description": "Description for discord.owner."
     },
     {
-      "name": "discord.default-voice-channel",
+      "name": "discord.channel.voice.default",
       "type": "java.lang.Long",
-      "description": "Description for discord.default-voice-channel."
+      "description": "Description for discord.channel.voice.default."
     },
     {
-      "name": "discord.advertise-channel",
+      "name": "discord.channel.chatting.default",
       "type": "java.lang.Long",
-      "description": "Description for discord.advertise-channel."
+      "description": "Description for discord.channel.chatting.default."
     },
     {
-      "name": "csgo.path",
-      "type": "java.lang.String",
-      "description": "Description for csgo.path."
+      "name": "discord.channel.chatting.bot",
+      "type": "java.lang.Long",
+      "description": "Description for discord.channel.chatting.bot."
+    },
+    {
+      "name": "discord.role.member",
+      "type": "java.lang.Long",
+      "description": "Description for discord.role.member."
     }
   ]
 }

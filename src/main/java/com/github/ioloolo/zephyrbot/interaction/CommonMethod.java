@@ -104,6 +104,25 @@ public class CommonMethod {
 		return true;
 	}
 
+	public boolean checkAlreadyRegistered(IReplyCallback callback) {
+
+		if (userRepository.findByDiscord(callback.getUser().getIdLong()).isPresent()) {
+			callback.deferReply(true).queue(hook -> {
+				MessageEmbed messageEmbed = new EmbedBuilder().setTitle("오류가 발생했습니다.")
+						.setDescription("이미 가입된 유저입니다.")
+						.setFooter("Team ZephyR")
+						.setColor(Color.RED)
+						.build();
+
+				hook.editOriginalEmbeds(messageEmbed).queue();
+			});
+
+			return false;
+		}
+
+		return true;
+	}
+
 	public List<User> getMatchTeam1User(Match match) {
 
 		return match.getTeam1()

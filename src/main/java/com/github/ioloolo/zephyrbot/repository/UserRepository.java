@@ -1,5 +1,6 @@
 package com.github.ioloolo.zephyrbot.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
@@ -12,6 +13,7 @@ import com.github.ioloolo.zephyrbot.data.User;
 public interface UserRepository extends MongoRepository<User, ObjectId> {
 
 	Optional<User> findBySteamId(long steamId);
-
 	Optional<User> findByDiscord(long discord);
+
+	List<User> findAllByBanIsTrue();
 }
