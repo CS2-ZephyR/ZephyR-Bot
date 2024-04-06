@@ -3,6 +3,7 @@ package com.github.ioloolo.zephyrbot.socket;
 import java.awt.*;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -53,25 +54,37 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	@Value("${discord.channel.voice.default}")
 	private long defaultVoice;
 
+	private AtomicInteger checkNumber;
+
 	@Override
 	public void handleTextMessage(@Nonnull WebSocketSession session, @Nonnull TextMessage textMessage) {
 
 		String payload = textMessage.getPayload();
 
 		if (payload.equals("server_open")) {
-			MessageEmbed originalEmbed = message.getEmbeds().get(0);
-			MessageEmbed messageEmbed = new EmbedBuilder(originalEmbed).setTitle("경기 진행")
-					.setDescription("경기가 진행중입니다.\n\n[경기 참여](https://teamzephyr.kro.kr/connect)\n\n\n*(만약 경기가 자동으로 종료되지 않을 경우, 아래 버튼을 사용해주세요.)*")
-					.setColor(Color.GREEN)
-					.build();
+			if (checkNumber.get() == 0) {
+				checkNumber.set(1);
+			} else if (checkNumber.get() == 1) {
+				checkNumber.set(0);
 
-			Button button = buttonBridge.getButton(MatchEndButton.class);
+				MessageEmbed originalEmbed = message.getEmbeds().get(0);
+				MessageEmbed messageEmbed = new EmbedBuilder(originalEmbed).setTitle("경기 진행")
+						.setDescription(
+								"경기가 진행중입니다.\n\n[경기 참여](https://teamzephyr.kro.kr/connect)\n\n\n*(만약 경기가 자동으로 종료되지 않을 경우, 아래 버튼을 사용해주세요.)*")
+						.setColor(Color.GREEN)
+						.build();
 
-			log.info("[Match Start] 서버 준비 완료.");
+				Button button = buttonBridge.getButton(MatchEndButton.class);
 
-			message.getChannel()
-					.deleteMessageById(message.getIdLong())
-					.queue(v -> message.getChannel().sendMessageEmbeds(messageEmbed).setActionRow(button).queue(message1 -> message = message1));
+				log.info("[Match Start] 서버 준비 완료.");
+
+				message.getChannel()
+						.deleteMessageById(message.getIdLong())
+						.queue(v -> message.getChannel()
+								.sendMessageEmbeds(messageEmbed)
+								.setActionRow(button)
+								.queue(message1 -> message = message1));
+			}
 		} else if (payload.equals("server_close")) {
 			Match match = matchRepository.findByEndIsFalse().orElseThrow();
 			match.setEnd(true);
